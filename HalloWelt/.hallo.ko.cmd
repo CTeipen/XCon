@@ -1,0 +1,1 @@
+cmd_/root/Git/XCon/HalloWelt/hallo.ko := ld -r -m elf_x86_64 -T /usr/src/linux-headers-4.8.0-kali1-common/scripts/module-common.lds --build-id  -o /root/Git/XCon/HalloWelt/hallo.ko /root/Git/XCon/HalloWelt/hallo.o /root/Git/XCon/HalloWelt/hallo.mod.o

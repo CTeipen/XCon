@@ -3,7 +3,6 @@
 
 static int hello_init(void){
 	printk(KERN_ALERT "TEST: Hello World");
-	display();
 	return 0;
 }
 
