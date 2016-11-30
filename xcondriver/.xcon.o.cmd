@@ -1,45 +1,19 @@
-cmd_/root/git/XCon/HalloWelt/hallo.mod.o :=  gcc-5 -Wp,-MD,/root/git/XCon/HalloWelt/.hallo.mod.o.d  -nostdinc -isystem /usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include -I./arch/x86/include/generated/uapi -I./arch/x86/include/generated  -I/usr/src/linux-headers-4.8.0-kali1-common/include -I./include -I/usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/uapi -I/usr/src/linux-headers-4.8.0-kali1-common/include/uapi -I./include/generated/uapi -include /usr/src/linux-headers-4.8.0-kali1-common/include/linux/kconfig.h -I/usr/src/linux-headers-4.8.0-kali1-common//root/git/XCon/HalloWelt -I/root/git/XCon/HalloWelt -D__KERNEL__ -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -std=gnu89 -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -m64 -falign-jumps=1 -falign-loops=1 -mno-80387 -mno-fp-ret-in-387 -mpreferred-stack-boundary=3 -mskip-rax-setup -mtune=generic -mno-red-zone -mcmodel=kernel -funit-at-a-time -maccumulate-outgoing-args -DCONFIG_X86_X32_ABI -DCONFIG_AS_CFI=1 -DCONFIG_AS_CFI_SIGNAL_FRAME=1 -DCONFIG_AS_CFI_SECTIONS=1 -DCONFIG_AS_FXSAVEQ=1 -DCONFIG_AS_SSSE3=1 -DCONFIG_AS_CRC32=1 -DCONFIG_AS_AVX=1 -DCONFIG_AS_AVX2=1 -DCONFIG_AS_SHA1_NI=1 -DCONFIG_AS_SHA256_NI=1 -pipe -Wno-sign-compare -fno-asynchronous-unwind-tables -fno-delete-null-pointer-checks -Wno-maybe-uninitialized -O2 --param=allow-store-data-races=0 -Wframe-larger-than=2048 -fstack-protector-strong -Wno-unused-but-set-variable -fno-var-tracking-assignments -g -pg -mfentry -DCC_USING_FENTRY -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow -fconserve-stack -Werror=implicit-int -Werror=strict-prototypes -Werror=date-time -Werror=incompatible-pointer-types -DCC_HAVE_ASM_GOTO  -DKBUILD_BASENAME='"hallo.mod"'  -DKBUILD_MODNAME='"hallo"' -DMODULE  -c -o /root/git/XCon/HalloWelt/hallo.mod.o /root/git/XCon/HalloWelt/hallo.mod.c
+cmd_/root/git/XCon/xcondriver/xcon.o :=  gcc-5 -Wp,-MD,/root/git/XCon/xcondriver/.xcon.o.d  -nostdinc -isystem /usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include -I./arch/x86/include/generated/uapi -I./arch/x86/include/generated  -I/usr/src/linux-headers-4.8.0-kali1-common/include -I./include -I/usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/uapi -I/usr/src/linux-headers-4.8.0-kali1-common/include/uapi -I./include/generated/uapi -include /usr/src/linux-headers-4.8.0-kali1-common/include/linux/kconfig.h -I/usr/src/linux-headers-4.8.0-kali1-common//root/git/XCon/xcondriver -I/root/git/XCon/xcondriver -D__KERNEL__ -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -std=gnu89 -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -m64 -falign-jumps=1 -falign-loops=1 -mno-80387 -mno-fp-ret-in-387 -mpreferred-stack-boundary=3 -mskip-rax-setup -mtune=generic -mno-red-zone -mcmodel=kernel -funit-at-a-time -maccumulate-outgoing-args -DCONFIG_X86_X32_ABI -DCONFIG_AS_CFI=1 -DCONFIG_AS_CFI_SIGNAL_FRAME=1 -DCONFIG_AS_CFI_SECTIONS=1 -DCONFIG_AS_FXSAVEQ=1 -DCONFIG_AS_SSSE3=1 -DCONFIG_AS_CRC32=1 -DCONFIG_AS_AVX=1 -DCONFIG_AS_AVX2=1 -DCONFIG_AS_SHA1_NI=1 -DCONFIG_AS_SHA256_NI=1 -pipe -Wno-sign-compare -fno-asynchronous-unwind-tables -fno-delete-null-pointer-checks -Wno-maybe-uninitialized -O2 --param=allow-store-data-races=0 -Wframe-larger-than=2048 -fstack-protector-strong -Wno-unused-but-set-variable -fno-var-tracking-assignments -g -pg -mfentry -DCC_USING_FENTRY -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow -fconserve-stack -Werror=implicit-int -Werror=strict-prototypes -Werror=date-time -Werror=incompatible-pointer-types -DCC_HAVE_ASM_GOTO  -DMODULE  -DKBUILD_BASENAME='"xcon"'  -DKBUILD_MODNAME='"xcon"' -c -o /root/git/XCon/xcondriver/.tmp_xcon.o /root/git/XCon/xcondriver/xcon.c
 
-source_/root/git/XCon/HalloWelt/hallo.mod.o := /root/git/XCon/HalloWelt/hallo.mod.c
+source_/root/git/XCon/xcondriver/xcon.o := /root/git/XCon/xcondriver/xcon.c
 
-deps_/root/git/XCon/HalloWelt/hallo.mod.o := \
-    $(wildcard include/config/module/unload.h) \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/module.h \
-    $(wildcard include/config/modules.h) \
-    $(wildcard include/config/sysfs.h) \
-    $(wildcard include/config/modules/tree/lookup.h) \
-    $(wildcard include/config/livepatch.h) \
-    $(wildcard include/config/unused/symbols.h) \
-    $(wildcard include/config/module/sig.h) \
-    $(wildcard include/config/generic/bug.h) \
-    $(wildcard include/config/kallsyms.h) \
-    $(wildcard include/config/smp.h) \
-    $(wildcard include/config/tracepoints.h) \
-    $(wildcard include/config/tracing.h) \
-    $(wildcard include/config/event/tracing.h) \
-    $(wildcard include/config/ftrace/mcount/record.h) \
-    $(wildcard include/config/constructors.h) \
-    $(wildcard include/config/debug/set/module/ronx.h) \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/list.h \
-    $(wildcard include/config/debug/list.h) \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/types.h \
-    $(wildcard include/config/have/uid16.h) \
-    $(wildcard include/config/uid16.h) \
+deps_/root/git/XCon/xcondriver/xcon.o := \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/kernel.h \
     $(wildcard include/config/lbdaf.h) \
-    $(wildcard include/config/arch/dma/addr/t/64bit.h) \
-    $(wildcard include/config/phys/addr/t/64bit.h) \
-    $(wildcard include/config/64bit.h) \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/types.h \
-  /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/uapi/asm/types.h \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/asm-generic/types.h \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/asm-generic/int-ll64.h \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/asm-generic/int-ll64.h \
-  /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/uapi/asm/bitsperlong.h \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/asm-generic/bitsperlong.h \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/asm-generic/bitsperlong.h \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/posix_types.h \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/stddef.h \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/stddef.h \
+    $(wildcard include/config/preempt/voluntary.h) \
+    $(wildcard include/config/debug/atomic/sleep.h) \
+    $(wildcard include/config/mmu.h) \
+    $(wildcard include/config/prove/locking.h) \
+    $(wildcard include/config/panic/timeout.h) \
+    $(wildcard include/config/tracing.h) \
+    $(wildcard include/config/ftrace/mcount/record.h) \
+  /usr/lib/gcc/x86_64-linux-gnu/5/include/stdarg.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/linkage.h \
   /usr/src/linux-headers-4.8.0-kali1-common/include/linux/compiler.h \
     $(wildcard include/config/sparse/rcu/pointer.h) \
     $(wildcard include/config/trace/branch/profiling.h) \
@@ -53,34 +27,42 @@ deps_/root/git/XCon/HalloWelt/hallo.mod.o := \
     $(wildcard include/config/optimize/inlining.h) \
     $(wildcard include/config/gcov/kernel.h) \
     $(wildcard include/config/arch/use/builtin/bswap.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/types.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/uapi/asm/types.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/asm-generic/types.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/asm-generic/int-ll64.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/asm-generic/int-ll64.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/uapi/asm/bitsperlong.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/asm-generic/bitsperlong.h \
+    $(wildcard include/config/64bit.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/asm-generic/bitsperlong.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/posix_types.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/stddef.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/stddef.h \
   /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/posix_types.h \
     $(wildcard include/config/x86/32.h) \
   /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/uapi/asm/posix_types_64.h \
   /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/asm-generic/posix_types.h \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/poison.h \
-    $(wildcard include/config/illegal/pointer/value.h) \
-    $(wildcard include/config/page/poisoning/zero.h) \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/const.h \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/kernel.h \
-    $(wildcard include/config/preempt/voluntary.h) \
-    $(wildcard include/config/debug/atomic/sleep.h) \
-    $(wildcard include/config/mmu.h) \
-    $(wildcard include/config/prove/locking.h) \
-    $(wildcard include/config/panic/timeout.h) \
-  /usr/lib/gcc/x86_64-linux-gnu/5/include/stdarg.h \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/linkage.h \
   /usr/src/linux-headers-4.8.0-kali1-common/include/linux/stringify.h \
   /usr/src/linux-headers-4.8.0-kali1-common/include/linux/export.h \
     $(wildcard include/config/have/underscore/symbol/prefix.h) \
+    $(wildcard include/config/modules.h) \
     $(wildcard include/config/modversions.h) \
     $(wildcard include/config/trim/unused/ksyms.h) \
+    $(wildcard include/config/unused/symbols.h) \
   /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/linkage.h \
     $(wildcard include/config/x86/64.h) \
     $(wildcard include/config/x86/alignment/16.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/types.h \
+    $(wildcard include/config/have/uid16.h) \
+    $(wildcard include/config/uid16.h) \
+    $(wildcard include/config/arch/dma/addr/t/64bit.h) \
+    $(wildcard include/config/phys/addr/t/64bit.h) \
   /usr/src/linux-headers-4.8.0-kali1-common/include/linux/bitops.h \
   /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/bitops.h \
     $(wildcard include/config/x86/cmov.h) \
   /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/alternative.h \
+    $(wildcard include/config/smp.h) \
   /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/asm.h \
   /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/rmwcc.h \
   /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/barrier.h \
@@ -142,6 +124,24 @@ deps_/root/git/XCon/HalloWelt/hallo.mod.o := \
     $(wildcard include/config/jump/label.h) \
   /usr/src/linux-headers-4.8.0-kali1-common/include/linux/jump_label.h \
   /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/jump_label.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/module.h \
+    $(wildcard include/config/sysfs.h) \
+    $(wildcard include/config/modules/tree/lookup.h) \
+    $(wildcard include/config/livepatch.h) \
+    $(wildcard include/config/module/sig.h) \
+    $(wildcard include/config/generic/bug.h) \
+    $(wildcard include/config/kallsyms.h) \
+    $(wildcard include/config/tracepoints.h) \
+    $(wildcard include/config/event/tracing.h) \
+    $(wildcard include/config/module/unload.h) \
+    $(wildcard include/config/constructors.h) \
+    $(wildcard include/config/debug/set/module/ronx.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/list.h \
+    $(wildcard include/config/debug/list.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/poison.h \
+    $(wildcard include/config/illegal/pointer/value.h) \
+    $(wildcard include/config/page/poisoning/zero.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/const.h \
   /usr/src/linux-headers-4.8.0-kali1-common/include/linux/stat.h \
   /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/uapi/asm/stat.h \
   /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/stat.h \
@@ -752,9 +752,153 @@ deps_/root/git/XCon/HalloWelt/hallo.mod.o := \
     $(wildcard include/config/have/mod/arch/specific.h) \
     $(wildcard include/config/modules/use/elf/rel.h) \
     $(wildcard include/config/modules/use/elf/rela.h) \
-  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/vermagic.h \
-  include/generated/utsrelease.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/fs.h \
+    $(wildcard include/config/fs/posix/acl.h) \
+    $(wildcard include/config/cgroup/writeback.h) \
+    $(wildcard include/config/ima.h) \
+    $(wildcard include/config/fsnotify.h) \
+    $(wildcard include/config/fs/encryption.h) \
+    $(wildcard include/config/file/locking.h) \
+    $(wildcard include/config/quota.h) \
+    $(wildcard include/config/fs/dax.h) \
+    $(wildcard include/config/mandatory/file/locking.h) \
+    $(wildcard include/config/migration.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/kdev_t.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/kdev_t.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/dcache.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/rculist_bl.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/list_bl.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/bit_spinlock.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/lockref.h \
+    $(wildcard include/config/arch/use/cmpxchg/lockref.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/stringhash.h \
+    $(wildcard include/config/dcache/word/access.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/hash.h \
+    $(wildcard include/config/have/arch/hash.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/path.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/list_lru.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/shrinker.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/radix-tree.h \
+    $(wildcard include/config/radix/tree/multiorder.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/semaphore.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/fiemap.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/migrate_mode.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/blk_types.h \
+    $(wildcard include/config/blk/dev/integrity.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/bvec.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/delayed_call.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/fs.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/quota.h \
+    $(wildcard include/config/quota/netlink/interface.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/percpu_counter.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/dqblk_xfs.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/dqblk_v1.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/dqblk_v2.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/dqblk_qtree.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/projid.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/quota.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/nfs_fs_i.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/fcntl.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/fcntl.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/uapi/asm/fcntl.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/asm-generic/fcntl.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/usb.h \
+    $(wildcard include/config/usb/mon.h) \
+    $(wildcard include/config/usb/led/trig.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/mod_devicetable.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/uuid.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/uuid.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/usb/ch9.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/device.h \
+    $(wildcard include/config/debug/devres.h) \
+    $(wildcard include/config/generic/msi/irq/domain.h) \
+    $(wildcard include/config/pinctrl.h) \
+    $(wildcard include/config/generic/msi/irq.h) \
+    $(wildcard include/config/dma/cma.h) \
+    $(wildcard include/config/of.h) \
+    $(wildcard include/config/devtmpfs.h) \
+    $(wildcard include/config/sysfs/deprecated.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/klist.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/pinctrl/devinfo.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/pinctrl/consumer.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/seq_file.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/pinctrl/pinctrl-state.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/ratelimit.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/device.h \
+    $(wildcard include/config/x86/dev/dma/ops.h) \
+    $(wildcard include/config/intel/iommu.h) \
+    $(wildcard include/config/amd/iommu.h) \
+    $(wildcard include/config/pci/domains.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/pm_wakeup.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/usb/ch9.h \
+    $(wildcard include/config/size.h) \
+    $(wildcard include/config/att/one.h) \
+    $(wildcard include/config/att/selfpower.h) \
+    $(wildcard include/config/att/wakeup.h) \
+    $(wildcard include/config/att/battery.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/delay.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/delay.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/asm-generic/delay.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/interrupt.h \
+    $(wildcard include/config/irq/forced/threading.h) \
+    $(wildcard include/config/generic/irq/probe.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/irqreturn.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/irqnr.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/uapi/linux/irqnr.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/hardirq.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/ftrace_irq.h \
+    $(wildcard include/config/ftrace/nmi/enter.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/vtime.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/context_tracking_state.h \
+    $(wildcard include/config/context/tracking.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/hardirq.h \
+    $(wildcard include/config/x86/thermal/vector.h) \
+    $(wildcard include/config/x86/mce/threshold.h) \
+    $(wildcard include/config/x86/mce/amd.h) \
+    $(wildcard include/config/hyperv.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/irq.h \
+    $(wildcard include/config/generic/irq/ipi.h) \
+    $(wildcard include/config/irq/domain/hierarchy.h) \
+    $(wildcard include/config/generic/pending/irq.h) \
+    $(wildcard include/config/hardirqs/sw/resend.h) \
+    $(wildcard include/config/generic/irq/legacy/alloc/hwirq.h) \
+    $(wildcard include/config/generic/irq/legacy.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/irqhandler.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/io.h \
+    $(wildcard include/config/have/arch/huge/vmap.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/irq.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/irq_regs.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/irqdesc.h \
+    $(wildcard include/config/irq/preflow/fasteoi.h) \
+    $(wildcard include/config/sparse/irq.h) \
+    $(wildcard include/config/handle/domain/irq.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/hw_irq.h \
+    $(wildcard include/config/hpet/timer.h) \
+    $(wildcard include/config/dmar/table.h) \
+    $(wildcard include/config/ht/irq.h) \
+    $(wildcard include/config/x86/uv.h) \
+    $(wildcard include/config/vmd.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/profile.h \
+    $(wildcard include/config/profiling.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/sections.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/asm-generic/sections.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/uaccess.h \
+    $(wildcard include/config/x86/intel/usercopy.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/kasan-checks.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/smap.h \
+    $(wildcard include/config/x86/smap.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/arch/x86/include/asm/uaccess_64.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/pm_runtime.h \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/slab.h \
+    $(wildcard include/config/debug/slab.h) \
+    $(wildcard include/config/failslab.h) \
+    $(wildcard include/config/have/hardened/usercopy/allocator.h) \
+    $(wildcard include/config/slab.h) \
+    $(wildcard include/config/slub.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/kmemleak.h \
+    $(wildcard include/config/debug/kmemleak.h) \
+  /usr/src/linux-headers-4.8.0-kali1-common/include/linux/kasan.h \
 
-/root/git/XCon/HalloWelt/hallo.mod.o: $(deps_/root/git/XCon/HalloWelt/hallo.mod.o)
+/root/git/XCon/xcondriver/xcon.o: $(deps_/root/git/XCon/xcondriver/xcon.o)
 
-$(deps_/root/git/XCon/HalloWelt/hallo.mod.o):
+$(deps_/root/git/XCon/xcondriver/xcon.o):

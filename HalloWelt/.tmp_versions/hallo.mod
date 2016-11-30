@@ -1,3 +1,3 @@
-/root/Git/XCon/HalloWelt/hallo.ko
-/root/Git/XCon/HalloWelt/hallo.o
+/root/git/XCon/HalloWelt/hallo.ko
+/root/git/XCon/HalloWelt/hallo.o
 
