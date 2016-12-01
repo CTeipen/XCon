@@ -150,9 +150,17 @@ static int xcon_probe(struct usb_interface *interface, const struct usb_device_i
 	
 	printk("XCon: -- PROBE - Enter\n");
 
+	dev = (struct usb_xcon*)kmalloc(sizeof(struct usb_xcon), GFP_KERNEL);
+
 	dev->udev = interface_to_usbdev(interface);
 
 	printk("XCon: 0x%4.4x|0x%4.4x, if=%p\n", (dev->udev)->descriptor.idVendor, (dev->udev)->descriptor.idProduct, interface);
+
+	char str[32];	
+	int ret;
+	ret = usb_make_path(dev->udev, str, 32 * sizeof(char));
+
+	printk("XCon:    USB-PATH: %s\n", str);
 
 	if((dev->udev)->descriptor.idVendor == USB_VENDOR_ID && (dev->udev)->descriptor.idProduct == USB_PRODUCT_ID){
 		
