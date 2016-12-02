@@ -1,17 +1,23 @@
 #include <linux/kernel.h>
+#include <linux/input.h>
+#include <linux/rcupdate.h>
 #include <linux/module.h>
+#include <linux/slab.h>
+#include <linux/stat.h>
 #include <linux/fs.h>
 #include <linux/usb.h>
-#include <linux/slab.h>
 #include <asm/uaccess.h>
 #include <linux/moduleparam.h>
 #include <linux/usb/input.h>
+#include <linux/usb/quirks.h>
 
 // Treiber Daten
 #define USB_VENDOR_ID			0x045e
 #define USB_PRODUCT_ID			0x028e
 
-#define DRIVER_NAME				"XCon-Treiber"
+#define DEV_NAME			"Microsoft X-Box 360 pad"
+
+#define DRIVER_NAME			"XCon-Treiber"
 #define DRIVER_DESCRIPTION		"Xbox Pad Treiber"
 #define DRIVER_AUTHOR			"KP 16/17 - BTDDTC"
 #define DRIVER_LICENSE			"GPL"
@@ -29,8 +35,8 @@
 // ------------------------------------------------------
 // Module Parameter
 // ------------------------------------------------------
-int param_var[3] = {0,0,0};
-module_param_array(param_var, int, NULL, S_IRUSR | S_IWUSR);
+//int param_var[3] = {0,0,0};
+//module_param_array(param_var, int, NULL, S_IRUSR | S_IWUSR);
 
 // ------------------------------------------------------
 // Grundlegende Structs
@@ -46,18 +52,29 @@ struct xcon_output_packet {
 // STRUCT USB_XCON
 struct usb_xcon {
 
+	struct input_dev* idev;
+	
 	struct usb_device *udev;			/* usb device */
 	struct usb_interface *intf;			/* usb interface */
 
-	bool pad_present;
+	struct usb_interface* interface;
+
+	unsigned char* iBuffer;				/* Input Buffer */
+	//unsigned char* oBuffer;				/* Output Buffer */
+	dma_addr_t iBuffer_dma;
+
+	struct urb* irq_in;
+
+	//bool con_present;
+
+	struct work_struct work;
+
+	//bool pad_present;
 	char phys[64];			/* physical device path */
-	int pad_nr;				/* the order x360 pads were attached */
+	//int pad_nr;			/* the order x360 pads were attached */
 	const char *name;		/* name of the device */
 
 };
-
-// STRUCT USB_DEVICE
-struct usb_xcon* dev;
 
 // STRUCT USB_DEVICE_ID - Geraete
 static struct usb_device_id dev_table [] = {
@@ -68,15 +85,23 @@ static struct usb_device_id dev_table [] = {
 // ------------------------------------------------------
 // Prototypen
 // ------------------------------------------------------
-void display(void);
-
 
 static int xcon_init(void);
+
 static int xcon_probe(struct usb_interface *interface, const struct usb_device_id *id);
 
-static int xcon_open(struct inode *devicefile, struct file* instance);
-static ssize_t xcon_read(struct file* instanz, char* buffer, size_t count, loff_t* ofs);
-//static void xcon_write(void);
+static void xcon_presence_work(struct work_struct *work);
+
+
+static int xcon_init_input(struct usb_xcon *xcon);
+static void xcon_deinit_input(struct usb_xcon *xcon);
+
+static int xcon_init_output(struct usb_interface* interface, struct usb_xcon *xcon);
+
+
+static void xcon_irq_in(struct urb *urb);
+
+static void xcon_process_packet(struct usb_xcon* xcon, u16 cmd, unsigned char* data);
 
 static void xcon_disconnect(struct usb_interface *interface);
 static void xcon_exit(void);
@@ -99,9 +124,6 @@ static struct usb_driver driver_desc = {
 // STRUCT FILE_OPERATIONS
 static struct file_operations usb_fops = {
 	.owner = THIS_MODULE,
-	.open = xcon_open,
-	.read = xcon_read,
-	//.write = xcon_write,
 };
 
 // STRUCT USB_CLASS_DRIVER
@@ -116,20 +138,11 @@ static struct usb_class_driver device_file = {
 // 	METHODEN
 // ------------------------------------------------------
 
-void display(void){
-
-	printk("XCon:    PARAM_VAR 1: %d\n", param_var[0]);
-	printk("XCon:    PARAM_VAR 2: %d\n", param_var[1]);
-	printk("XCon:    PARAM_VAR 3: %d\n", param_var[2]);
-
-}
-
 // INIT
 static int __init xcon_init(void){
 	
 	
 	printk("XCon: -- INIT - Enter\n");
-	display();
 	
 	if(usb_register(&driver_desc)){
 		printk("XCon:    REG - Failed\n");
@@ -150,94 +163,180 @@ static int xcon_probe(struct usb_interface *interface, const struct usb_device_i
 	
 	printk("XCon: -- PROBE - Enter\n");
 
-	dev = (struct usb_xcon*)kmalloc(sizeof(struct usb_xcon), GFP_KERNEL);
+	struct usb_device* dev;
+	struct usb_xcon* xcon;
+	struct usb_endpoint_descriptor* ep_desc_in;
+	int error;
 
-	dev->udev = interface_to_usbdev(interface);
+	dev = interface_to_usbdev(interface);
 
-	printk("XCon: 0x%4.4x|0x%4.4x, if=%p\n", (dev->udev)->descriptor.idVendor, (dev->udev)->descriptor.idProduct, interface);
 
-	char str[32];	
-	int ret;
-	ret = usb_make_path(dev->udev, str, 32 * sizeof(char));
 
-	printk("XCon:    USB-PATH: %s\n", str);
-
-	if((dev->udev)->descriptor.idVendor == USB_VENDOR_ID && (dev->udev)->descriptor.idProduct == USB_PRODUCT_ID){
-		
-
-		if(usb_register_dev(interface, &device_file)){
-			printk("XCon:    REGDEV - Failed\n");
-			printk("XCon: -- PROBE - Exit\n");
-			return -EIO;
-		}
-	
-		printk("XCon:    MINOR = %d\n", interface->minor);
-
-		printk("XCon:    REGDEV - Success\n");
-		printk("XCon: -- PROBE - Exit\n");
-	
-		return 0;
-
+	if(interface->cur_altsetting->desc.bNumEndpoints != 2){
+		return -ENODEV;
 	}
 
-	return -ENODEV;
+	xcon = (struct usb_xcon*)kzalloc(sizeof(struct usb_xcon), GFP_KERNEL);
+	if(xcon == NULL){
+		return -ENOMEM;
+	}
+	
+	xcon->iBuffer = usb_alloc_coherent(dev, XCON_PKT_LEN, GFP_KERNEL, &(xcon->iBuffer_dma));
+
+	if(xcon->iBuffer == NULL){
+		error = -ENOMEM;
+		goto ERROR_FREE_MEM;
+	}
+
+	xcon->irq_in = usb_alloc_urb(0, GFP_KERNEL);
+	if(xcon->irq_in == NULL){
+		error = -ENOMEM;
+		goto ERROR_FREE_IBUFFER;
+	}
+
+	xcon->udev = dev;
+	xcon->interface = interface;
+	xcon->name = DEV_NAME;
+
+	usb_make_path(xcon->udev, xcon->phys, 64 * sizeof(char));
+	strlcat(xcon->phys, "/input0", sizeof(xcon->phys));
+	printk("XCon:    USB-PATH: %s\n", xcon->phys);
+
+
+	INIT_WORK(&xcon->work, xcon_presence_work);
+
+	error = xcon_init_output(interface, xcon);
+	if(error){
+		goto ERROR_FREE_IN_URB;	
+	}
+
+	ep_desc_in = &interface->cur_altsetting->endpoint[0].desc;
+
+	usb_fill_int_urb(xcon->irq_in, dev,
+			usb_rcvintpipe(dev, ep_desc_in->bEndpointAddress), xcon->iBuffer, XCON_PKT_LEN, xcon_irq_in, xcon, ep_desc_in->bInterval);
+
+
+	xcon->irq_in->transfer_dma = xcon->iBuffer_dma;
+	xcon->irq_in->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+
+	usb_set_intfdata(interface, xcon);
+
+	printk("XCon:    0x%4.4x|0x%4.4x, if=%p\n", (xcon->udev)->descriptor.idVendor, (xcon->udev)->descriptor.idProduct, interface);	
+
+	error = xcon_init_input(xcon);
+	if(error){
+		goto ERROR_DEINIT_INPUT;
+	}
+
+
+	printk("XCon: -- PROBE - Exit\n");
+	return 0;
+
+ERROR_DEINIT_INPUT:
+	xcon_deinit_input(xcon);	
+
+
+ERROR_FREE_IN_URB:
+	printk("XCon: -- PROBE - Exit with Error: FREE_IN_URB\n");	
+	usb_free_urb(xcon->irq_in);
+
+ERROR_FREE_IBUFFER:
+	printk("XCon: -- PROBE - Exit with Error: FREE_IBUFFER\n");	
+	usb_free_coherent(dev, XCON_PKT_LEN, xcon->iBuffer, xcon->iBuffer_dma);
+
+ERROR_FREE_MEM:
+	kfree(xcon);
+	printk("XCon: -- PROBE - Exit with Error: FREE_MEM\n");
+	return error;
 }
 
+static void xcon_presence_work(struct work_struct *work){
 
-// OPEN
-static int xcon_open(struct inode *devicefile, struct file* instance){
-	
-	printk("XCon: -- OPEN - Enter\n");
+	printk("XCon:    PRESENCE WORK - Enter\n");
 
-	printk("XCon: -- OPEN - Exit\n");
+	/*struct usb_xcon *xcon = container_of(work, struct usb_xcon, work);
+	int error;
+
+	if (xcon->con_present) {
+		error = xcon_init_input(xcon);
+		if (error) {
+			/complain only, not much else we can do here/
+			dev_err(&xcon->idev->dev,
+				"unable to init device: %d\n", error);
+		}
+	}*/
+
+	printk("XCon:    PRESENCE WORK - Exit\n");
+}
+
+static int xcon_init_input(struct usb_xcon *xcon){
+
+	printk("XCon:    INIT INPUT - Enter\n");
+
+
+	printk("XCon:    INIT INPUT - Exit\n");
 
 	return 0;
 }
 
+static void xcon_deinit_input(struct usb_xcon *xcon){
 
-// READ
-static ssize_t xcon_read(struct file* instanz, char* buffer, size_t count, loff_t* ofs){
-	
-	printk("XCon: -- READ - Enter\n");
+	printk("XCon:    DEINIT INPUT - Enter\n");
 
-	char pbuf[20];
-	__u16 *status = kmalloc( sizeof(__u16), GFP_KERNEL );
 
-	mutex_lock( &ulock ); // Jetzt nicht disconnecten ...
+	printk("XCon:    DEINIT INPUT - Exit\n");
 
-	if( usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0), USB_REQ_GET_STATUS, USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_INTERFACE, 0, 0, status, sizeof(*status), 5*HZ) < 0){
-
-		count = -EIO;
-		goto read_out;
-
-	}
-
-	snprintf( pbuf, sizeof(pbuf), "status=%d\n", *status );
-
-	if(strlen(pbuf) < count)
-		count = strlen(pbuf);
-
-	count -= copy_to_user(buffer, pbuf, count);
-	*ofs += count;
-
-read_out:
-	mutex_unlock( &ulock );
-	kfree( status );
-
-	printk("XCon: -- READ - Exit\n");
-
-	return count;
 }
 
+static int xcon_init_output(struct usb_interface* interface, struct usb_xcon *xcon){
 
-// WRITE
-/*static void xcon_write(void){
-	
-	printk("XCon: -- WRITE - Enter\n");
+	printk("XCon:    INIT OUTPUT - Enter\n");
 
-	printk("XCon: -- WRITE - Exit\n");
-}*/
 
+	printk("XCon:    INIT OUTPUT - Exit\n");
+
+	return 0;
+}
+
+static void xcon_irq_in(struct urb *urb)
+{
+	/*struct usb_xcon *xcon = urb->context;
+	struct device *dev = &xcon->interface->dev;
+	int retval, status;
+
+	status = urb->status;
+
+	switch (status) {
+	case 0:
+		// success
+		break;
+	case -ECONNRESET:
+	case -ENOENT:
+	case -ESHUTDOWN:
+		// this urb is terminated, clean up
+		dev_dbg(dev, "%s - urb shutting down with status: %d\n",
+			__func__, status);
+		return;
+	default:
+		dev_dbg(dev, "%s - nonzero urb status received: %d\n",
+			__func__, status);
+		goto exit;
+	}
+
+	xcon_process_packet(xcon, 0, xcon->iBuffer);
+
+
+exit:
+	retval = usb_submit_urb(urb, GFP_ATOMIC);
+	if (retval)
+		dev_err(dev, "%s - usb_submit_urb failed with result %d\n",
+			__func__, retval);
+	*/
+}
+
+static void xcon_process_packet(struct usb_xcon* xcon, u16 cmd, unsigned char* data){
+	printk("XCon:    Process-Packet: %s", data);
+}
 
 // DISCONNECT
 static void xcon_disconnect(struct usb_interface *interface){
