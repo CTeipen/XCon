@@ -10,7 +10,7 @@
 // Treiber Daten
 #define USB_VENDOR_ID			0x045e
 #define USB_PRODUCT_ID			0x028e
-#define ENDPOINT_IN			81
+#define ENDPOINT_IN				81
 
 #define DRIVER_NAME				"XCon-Treiber"
 #define DRIVER_DESCRIPTION		"Xbox Pad Treiber"
@@ -83,7 +83,8 @@ static int xcon_probe(struct usb_interface *interface, const struct usb_device_i
 
 static int xcon_open(struct inode *devicefile, struct file* instance);
 static ssize_t xcon_read(struct file* instanz, char* buffer, size_t count, loff_t* ofs);
-//static void xcon_write(void);
+static ssize_t xcon_write(struct file* file, const char* user_buffer, size_t count, loff_t* ppos);
+static int xcon_release(struct inode* inode, struct file* file);
 
 static void xcon_disconnect(struct usb_interface *interface);
 static void xcon_exit(void);
@@ -108,7 +109,8 @@ static struct file_operations usb_fops = {
 	.owner = THIS_MODULE,
 	.open = xcon_open,
 	.read = xcon_read,
-	//.write = xcon_write,
+	.write = xcon_write,
+	.release = xcon_release,
 };
 
 // STRUCT USB_CLASS_DRIVER
@@ -277,7 +279,7 @@ static ssize_t xcon_read(struct file* file, char* buffer, size_t count, loff_t* 
                        min(MESSAGE_SIZE, (int) count),
                        &actual_length, 0);
 	
-	printk("XCon: -- READ - count: %d\n", count);
+	printk("XCon: -- READ - count: %d\n", (int)count);
 	printk("XCon: -- READ - Length: %d\n", actual_length);
 
 	/* if the read was successful, copy the data
@@ -299,15 +301,102 @@ static ssize_t xcon_read(struct file* file, char* buffer, size_t count, loff_t* 
 	return retval;
 }
 
+static void xcon_write_bulk_callback(struct urb* urb){
+
+	struct usb_xcon* dev;
+
+	dev = (struct usb_xcon*)urb->context;
+	
+	if(urb->status &&
+		!(urb->status == -ENOENT ||
+		  urb->status == -ECONNRESET ||
+		  urb->status == -ESHUTDOWN)){
+
+		printk("%s - nonzero write bulk status received: %d", __FUNCTION__, urb->status);		
+
+	}
+
+	usb_free_coherent(urb->dev, urb->transfer_buffer_length, urb->transfer_buffer, urb->transfer_dma);
+
+}
 
 // WRITE
-/*static void xcon_write(void){
+static ssize_t xcon_write(struct file* file, const char* user_buffer, size_t count, loff_t* ppos){
 	
 	printk("XCon: -- WRITE - Enter\n");
+	printk("   WRITE-MSG: %s\n", user_buffer);
+
+	struct usb_xcon* dev;
+	int retval = 0;
+	struct urb* urb = NULL;
+	char* buffer = NULL;
+
+	dev = (struct usb_xcon*)file->private_data;
+	if(count == 0){
+		goto exit;
+	}
+
+	urb = usb_alloc_urb(0, GFP_KERNEL);
+	if(!urb){
+		retval = -ENOMEM;
+		goto error;
+	}
+
+	buffer = usb_alloc_coherent(dev->udev, count, GFP_KERNEL, &urb->transfer_dma);
+	if(!buffer){
+		retval = -ENOMEM;
+		goto error;
+	}
+
+	if(copy_from_user(buffer, user_buffer, count)){
+		retval = -EFAULT;
+		goto error;
+	}
+
+	usb_fill_bulk_urb(urb, dev->udev, usb_sndbulkpipe(dev->udev, dev->bulk_out_endpointAddr),
+						buffer, count, xcon_write_bulk_callback, dev);
+
+	urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+
+	retval = usb_submit_urb(urb, GFP_KERNEL);
+	if(retval){
+	
+		printk("%s - failed submitting write urb, error %d\n", __FUNCTION__, retval);
+		goto error;
+
+	}
+	
+	usb_free_urb(urb);
 
 	printk("XCon: -- WRITE - Exit\n");
-}*/
 
+exit:
+	printk("XCon: -- WRITE - Exit - Exit\n");
+	return count;
+
+error:
+	printk("XCon: -- WRITE - Exit - Error\n");
+	return retval;
+	
+}
+
+
+static int xcon_release(struct inode* inode, struct file* file){
+
+	printk("XCon: -- RELEASE - Enter\n");	
+
+	struct usb_xcon* dev;
+
+	dev = (struct usb_xcon*)file->private_data;
+	if(dev == NULL)
+		return -ENODEV;
+
+
+	printk("XCon: -- RELEASE - Exit\n");
+
+	return 0;
+
+}
 
 // DISCONNECT
 static void xcon_disconnect(struct usb_interface *interface){
