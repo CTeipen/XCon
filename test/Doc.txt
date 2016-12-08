@@ -1,0 +1,44 @@
+D-Pad
+	 1	- D-Pad Up
+	 2	- D-Pad Down
+	 4	- D-Pad Left
+	 8	- D-Pad Right
+	16	- Start
+	32	- Back
+	64	- Left Stick
+	 >	- Right Stick
+
+Reserved
+	 1	- LB
+	 2	- RB
+	 4	- X-Box Button
+	16	- A
+	32	- B
+	64	- X
+	 >	- Y
+ 
+A-Button
+	0-120	- LT Intensity
+
+B-Button
+	0-120	- RT Intensity
+
+LEFT STICK:
+	X Button
+		0-127	- Left Stick X-Axis Left
+	Y Button
+		0-127	- Left Stick X-Axis Right
+	White Button
+		0-127	- Left Stick Y-Axis Top
+	Black Button
+		0-127	- Left Stick Y-Axis Bottom
+
+Right Stick:
+	L Trigger
+		0-127	- Right Stick X-Axis Left
+	R Trigger
+		0-127	- Right Stick X-Axis Right
+	Left Stick x 1
+		0-127	- Right Stick Y-Axis Bottom
+	Left Stick x 2
+		0-127	- Right Stick Y-Axis Top
