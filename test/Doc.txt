@@ -1,4 +1,4 @@
-D-Pad
+	D-Pad
 	 1	- D-Pad Up
 	 2	- D-Pad Down
 	 4	- D-Pad Left
@@ -18,10 +18,10 @@ Reserved
 	 >	- Y
  
 A-Button
-	0-120	- LT Intensity
+	0-127	- LT Intensity
 
 B-Button
-	0-120	- RT Intensity
+	0-127	- RT Intensity
 
 LEFT STICK:
 	X Button
