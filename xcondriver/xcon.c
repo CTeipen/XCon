@@ -243,6 +243,11 @@ static int xcon_open(struct inode *devicefile, struct file* file){
 
 	dev = usb_get_intfdata(interface);
 
+	if(!dev) {
+		printk("XCon: -- OPEN - Error - XCON nicht gefunden");
+		return -ENODEV;
+	}
+
 	file->private_data = dev;
 
 	printk("XCon: -- OPEN - Exit\n");
