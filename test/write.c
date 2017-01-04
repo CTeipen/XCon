@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#define SIZE 6
+#define SIZE 3
 
 int main(int argc, char *argv[]) {
 
@@ -17,16 +17,36 @@ int main(int argc, char *argv[]) {
 		return 1; 
 	} 
 
-	char* buffer = calloc(SIZE, sizeof(char));
+	int end = 0;
+	while(!end) {
 
-	buffer[0] = 0x00;
-	buffer[1] = 0x06;
-	buffer[2] = 0x01;
-	buffer[3] = 0xff;
-	buffer[4] = 0x01;
-	buffer[5] = 0xff;
+		char* buffer = calloc(SIZE, sizeof(char) * SIZE);
+		char* stdBuffer = calloc(SIZE, sizeof(char) * 2);
 
-	write(fd, buffer, SIZE);
+		buffer[0] = 0x01;
+		buffer[1] = 0x03;
+
+		read(0, stdBuffer, 3);
+
+		int number = atoi(stdBuffer);
+		if(number == -1) {
+			end = 1;
+		} else {
+			buffer[2] = atoi(stdBuffer);
+			//buffer[3] = 0x01;
+			//buffer[4] = 0x00;
+			//buffer[5] = 0x00;
+
+			int size = write(fd, buffer, SIZE);
+
+			free(buffer);
+			free(stdBuffer);
+
+			printf("Size written: %d\n", size);
+		
+		}
+		
+	}
 
 	close(fd);
 	printf("Close..\n");
