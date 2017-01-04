@@ -149,8 +149,7 @@ int main(int argc, char *argv[]) {
 		if(mode == 0)
 			printf("\n-------------------------\n");
 		
-		if(pressed != "")
-			printf("Pressed: %s\n", pressed);
+		printf("Pressed: %s\n", pressed);
 			
 
 		close(fd);

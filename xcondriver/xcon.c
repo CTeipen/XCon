@@ -301,30 +301,169 @@ static ssize_t xcon_read(struct file* file, char* buffer, size_t count, loff_t* 
 	return retval;
 }
 
-static void xcon_write_bulk_callback(struct urb* urb){
+static void xcon_write_bulk_callback(struct urb *urb) {
+   /* sync/async unlink faults aren't errors */
+   if (urb->status && 
+       !(urb->status == -ENOENT || 
+	 urb->status == -ECONNRESET ||
+	 urb->status == -ESHUTDOWN)) {
+      printk("%s - nonzero write bulk status received: %d",
+	  __FUNCTION__, urb->status);
+   }
 
-	struct usb_xcon* dev;
-
-	dev = (struct usb_xcon*)urb->context;
-	
-	if(urb->status &&
-		!(urb->status == -ENOENT ||
-		  urb->status == -ECONNRESET ||
-		  urb->status == -ESHUTDOWN)){
-
-		printk("%s - nonzero write bulk status received: %d", __FUNCTION__, urb->status);		
-
-	}
-
-	usb_free_coherent(urb->dev, urb->transfer_buffer_length, urb->transfer_buffer, urb->transfer_dma);
-
+   /* free up our allocated buffer */
+   /*usb_buffer_free*/
+   usb_free_coherent(urb->dev, urb->transfer_buffer_length, 
+		     urb->transfer_buffer, urb->transfer_dma);
 }
 
-// WRITE
+static ssize_t xcon_write(struct file *file, 
+			  const char __user *user_buffer, 
+			  size_t count, 
+			  loff_t *ppos) {
+   struct usb_xcon *dev;
+   int retval = 0;
+   struct urb *urb = NULL;
+   char *buf = NULL;
+
+   dev = (struct usb_xcon *)file->private_data;
+
+   /* verify that we actually have some data to write */
+   if (count == 0) goto exit;
+   
+   /* create a urb, and a buffer for it, and copy the data to the urb */
+   /* URB = USB request block
+      - All relevant information to execute any USB transaction and deliver
+        the data and status back. 
+	
+      - Execution of an URB is inherently an asynchronous operation, i.e. the 
+        usb_submit_urb(urb) call returns immediately after it has successfully
+        queued the requested action.
+
+      - Transfers for one URB can be canceled with usb_unlink_urb(urb) at 
+        any time. 
+	
+      - Each URB has a completion handler, which is called after the action
+        has been successfully completed or canceled. The URB also contains a
+        context-pointer for passing information to the completion handler.
+	
+      - Each endpoint for a device logically supports a queue of requests.
+        You can fill that queue, so that the USB hardware can still transfer
+        data to an endpoint while your driver handles completion of another.
+        This maximizes use of USB bandwidth, and supports seamless streaming
+        of data to (or from) devices when using periodic transfer modes.
+
+     Structure:
+     struct urb {
+        // private: usb core and host controller only fields in the urb 
+	struct kref kref;		// reference count of the URB 
+	void *hcpriv;			// private data for host controller 
+	atomic_t use_count;		// concurrent submissions counter 
+	atomic_t reject;		// submissions will fail 
+	int unlinked;			// unlink error code 
+
+	// public: documented fields in the urb that can be used by drivers 
+	struct list_head urb_list;	// list head for use by the urb's
+					// current owner
+	struct list_head anchor_list;	// the URB may be anchored 
+	struct usb_anchor *anchor;
+	struct usb_device *dev;		// (in) pointer to associated device 
+	struct usb_host_endpoint *ep;	// (internal) pointer to endpoint 
+	unsigned int pipe;		// (in) pipe information 
+	unsigned int stream_id;		// (in) stream ID 
+	int status;			// (return) non-ISO status 
+	unsigned int transfer_flags;	// (in) URB_SHORT_NOT_OK | ...
+	void *transfer_buffer;		// (in) associated data buffer 
+	dma_addr_t transfer_dma;	// (in) dma addr for transfer_buffer 
+	struct scatterlist *sg;		// (in) scatter gather buffer list 
+	int num_mapped_sgs;		// (internal) mapped sg entries 
+	int num_sgs;			// (in) number entries in the sg list 
+	u32 transfer_buffer_length;	// (in) data buffer length 
+	u32 actual_length;		// (return) actual transfer length 
+	unsigned char *setup_packet;	// (in) setup packet (control only) 
+	dma_addr_t setup_dma;		// (in) dma addr for setup_packet 
+	int start_frame;		// (modify) start frame (ISO) 
+	int number_of_packets;		// (in) number of ISO packets 
+	int interval;			// (modify) transfer interval (INT/ISO)
+	int error_count;		// (return) number of ISO errors 
+	void *context;			// (in) context for completion 
+	usb_complete_t complete;	// (in) completion routine 
+	struct usb_iso_packet_descriptor iso_frame_desc[0]; // (in) ISO ONLY 
+     };
+   */
+   urb = usb_alloc_urb(0, GFP_KERNEL);
+   if (!urb) {
+      retval = -ENOMEM;
+      goto error;
+   }
+
+   /*usb_buffer_alloc*/
+   buf = usb_alloc_coherent(dev->udev, count, GFP_KERNEL, &urb->transfer_dma);
+   if (!buf) {
+      retval = -ENOMEM;
+      goto error;
+   }
+   if (copy_from_user(buf, user_buffer, count)) {
+      retval = -EFAULT;
+      goto error;
+   }
+
+
+   /* initialize the urb properly */
+   /*
+      urb      - pointer to the urb to initialize.
+      udev     - pointer to the struct usb_device for this urb.
+      pipe     - the endpoint pipe
+      buffer   - pointer to the transfer buffer
+      count    - length of the transfer buffer
+      callback - pointer to the usb_complete_t function
+      dev      - what to set the urb context to
+
+      unsigned int usb_sndbulkpipe(struct usb_device* dev, unsigned int ep)
+      Specifies a bulk OUT endpoint for the specified USB device with 
+      the specified endpoint number.
+   */
+   usb_fill_bulk_urb(urb, 
+		     dev->udev,
+		     usb_sndbulkpipe(dev->udev, dev->bulk_out_endpointAddr),
+		     buf, 
+		     count, 
+		     xcon_write_bulk_callback, 
+		     dev);
+   urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+   
+
+   /* send the data out the bulk port */
+   retval = usb_submit_urb(urb, GFP_KERNEL);
+   printk("TEST\n %d", retval);
+   if (retval) {
+      printk(KERN_INFO "%s - failed submitting write urb, error %d", 
+	     __FUNCTION__, retval);
+      goto error;
+   }
+
+   /* release our reference to this urb, the USB core will eventually 
+      free it entirely 
+   usb_free_urb(urb);
+*/
+exit:
+   return count;
+
+error:
+   usb_free_coherent(dev->udev, count, buf, urb->transfer_dma);
+   usb_free_urb(urb);
+   kfree(buf);
+   return retval;
+}
+
+/* WRITE
 static ssize_t xcon_write(struct file* file, const char* user_buffer, size_t count, loff_t* ppos){
 	
 	printk("XCon: -- WRITE - Enter\n");
-	printk("   WRITE-MSG: %s\n", user_buffer);
+
+	int i = -1;
+	while(++i < count)
+		printk("   WRITE-MSG(%d): %x\n", i, user_buffer[i]);
 
 	struct usb_xcon* dev;
 	int retval = 0;
@@ -379,7 +518,7 @@ error:
 	return retval;
 	
 }
-
+*/
 
 static int xcon_release(struct inode* inode, struct file* file){
 

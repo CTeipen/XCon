@@ -19,7 +19,12 @@ int main(int argc, char *argv[]) {
 
 	char* buffer = calloc(SIZE, sizeof(char));
 
-	buffer[3] = 0x01;
+	buffer[0] = 0x00;
+	buffer[1] = 0x06;
+	buffer[2] = 0x01;
+	buffer[3] = 0xff;
+	buffer[4] = 0x01;
+	buffer[5] = 0xff;
 
 	write(fd, buffer, SIZE);
 
