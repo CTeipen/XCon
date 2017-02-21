@@ -53,6 +53,8 @@ struct usb_xcon {
 	__u8 bulk_out_endpointAddr;			/* the address of the bulk out endpoint */
 
 	int hasEndpoint;				/*Has the device an endpoint? */
+
+	int number;
 		
 	unsigned char* bulk_in_buffer;		/* the buffer to receive data */
 
@@ -167,6 +169,8 @@ static int xcon_probe(struct usb_interface *interface, const struct usb_device_i
 	dev->udev = interface_to_usbdev(interface);
 	
 	printk("XCon: -- PROBE - Enter\n");
+
+	printk("XCon: 
 
 	printk("XCon: 0x%4.4x|0x%4.4x, if=%p\n", (dev->udev)->descriptor.idVendor, (dev->udev)->descriptor.idProduct, interface);
 
