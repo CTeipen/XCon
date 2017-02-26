@@ -126,7 +126,7 @@ static struct usb_class_driver device_file = {
 };
 
 
-static DEFINE_IDA(xcon_seq);
+static int counter;
 
 
 // ------------------------------------------------------
@@ -146,6 +146,9 @@ static int __init xcon_init(void){
 	
 	
 	printk("XCon: -- INIT - Enter\n");
+
+	counter = 0;
+
 	display();
 	
 	if(usb_register(&driver_desc)){
@@ -209,7 +212,7 @@ static int xcon_probe(struct usb_interface *interface, const struct usb_device_i
 					printk("XCon: Endpoint used for Input: %p\n", interface_descriptor->endpoint);
 				}
 
-				//Ist Input Endpoint
+				//Ist Output Endpoint
 				if(dev->bulk_out_endpointAddr == 0 && 
 					!(endpoint->bEndpointAddress & USB_DIR_IN)) {
 				
@@ -233,21 +236,20 @@ static int xcon_probe(struct usb_interface *interface, const struct usb_device_i
  
 		printk("XCon:    USB-PATH: %s\n", str);
 		
-		dev->number = ida_simple_get(&xcon_seq, 0, 0, GFP_KERNEL);
-		printk("XCon: --Probe Nummer: %d\n", dev->number);
-		
+		dev->number = counter;
+		printk("XCon: --Probe Nummer: %d\n", counter);
+
+		counter++;
 
 		if(usb_register_dev(interface, &device_file)){
 			printk("XCon:    REGDEV - Failed\n");
 			printk("XCon: -- PROBE - Exit\n");
-			ida_simple_remove(&xcon_seq, dev->number);
 			return -EIO;
 		}
 
 		//Jedes 4te Device ist ein neuer Controller
 		if(dev->number % 4 == 0) {
-			//Sturtzt komplett ab...
-			//setNumber(dev);
+			setNumber(dev);
 		}
 	
 		printk("XCon:    MINOR = %d\n", interface->minor);
@@ -264,6 +266,8 @@ static int xcon_probe(struct usb_interface *interface, const struct usb_device_i
 
 static void setNumber(struct usb_xcon * dev) {
 
+	mutex_lock( &ulock ); // Jetzt nicht disconnecten ...
+
 	printk("XCon: --Sending Number: %d\n", dev->number);
 
 	char *buf = NULL;
@@ -271,13 +275,15 @@ static void setNumber(struct usb_xcon * dev) {
 	
 	urb = usb_alloc_urb(0, GFP_KERNEL);
 	if (urb == NULL) {
-		goto error;
+		printk("XCon: --Error Alloc_URB\n");
+		return;
 	}
 
-	buf = kmalloc(sizeof(char) * 3, GFP_KERNEL);
+	buf = usb_alloc_coherent(dev->udev, sizeof(char) * 3, GFP_KERNEL, &urb->transfer_dma);
 	
 	if (buf == NULL) {
-		goto error;
+		printk("XCon: --Error Alloc_coherent\n");
+		goto error_alloc;
 	}
 
 	buf[0] = 0x01;
@@ -286,28 +292,29 @@ static void setNumber(struct usb_xcon * dev) {
 
 	usb_fill_int_urb(urb, 
 		     dev->udev,
-		     usb_sndbulkpipe(dev->udev, dev->bulk_out_endpointAddr),
+		     usb_sndintpipe(dev->udev, dev->bulk_out_endpointAddr),
 		     buf, 
 		     sizeof(char) * 3, 
 		     xcon_write_int_callback, 
 		     dev, 5);
 	urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
 
-	//int retval = usb_submit_urb(urb, GFP_KERNEL);
+	int retval = usb_submit_urb(urb, GFP_KERNEL);
 
-	int retval = 0;
 	if (retval) {
 		printk(KERN_INFO "%s - failed submitting write urb, error %d", __FUNCTION__, retval);
-		goto error;
+		goto error_send;
 	}
-	printk("XCon: --Sended Number: %d\n", dev->number);
+	printk("XCon: --Sended Number: %d\n", 6 + dev->number % 4);
 
-	usb_free_urb(urb);
-	
-error:
+error_send:
+
 	usb_free_coherent(dev->udev, sizeof(char) * 3, buf, urb->transfer_dma);
+error_alloc:
 	usb_free_urb(urb);
-	printk("XCon: --error Sending Number\n");
+
+	mutex_unlock( &ulock );
+
 }
 
 
@@ -447,7 +454,7 @@ static ssize_t xcon_write(struct file *file, const char* user_buffer, size_t cou
 
 	usb_fill_int_urb(urb, 
 		     dev->udev,
-		     usb_sndbulkpipe(dev->udev, dev->bulk_out_endpointAddr),
+		     usb_sndintpipe(dev->udev, dev->bulk_out_endpointAddr),
 		     buf, 
 		     count, 
 		     xcon_write_int_callback, 
@@ -499,15 +506,14 @@ static void xcon_disconnect(struct usb_interface *interface){
 	dev->udev = interface_to_usbdev(interface);
 	
 	printk("XCon: -- DISCONNECT - Enter\n");
-
 	
 	mutex_lock( &ulock );
 	
 	usb_deregister_dev(interface, &device_file);
-	ida_simple_remove(&xcon_seq, dev->number);
 
 	mutex_unlock( &ulock );
 
+	counter--;
 
 	printk("XCon: -- DISCONNECT - Exit\n");
 }
